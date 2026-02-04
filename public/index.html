@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>URL Shortener</title>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: 40px auto; }
+    input, button { padding:10px; margin:5px 0; width:100%; }
+    #dashboard { display:none; }
+  </style>
+</head>
+
+<body>
+
+<h2 id="authTitle">Login / Register</h2>
+
+<div id="authBox">
+  <input id="email" placeholder="email" />
+  <input id="password" type="password" placeholder="password" />
+
+  <button onclick="register()">Register</button>
+  <button onclick="login()">Login</button>
+</div>
+
+<div id="dashboard">
+  <h2>URL Shortener</h2>
+
+  <input id="longUrl" placeholder="Paste long URL" />
+  <button onclick="shorten()">Shorten</button>
+
+  <p id="result"></p>
+  <button onclick="copy()">Copy</button>
+
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+const API="http://localhost:5000";
+
+function showDashboard(){
+  authBox.style.display="none";
+  authTitle.style.display="none";
+  dashboard.style.display="block";
+}
+
+function saveToken(t){
+  localStorage.setItem("token",t);
+  showDashboard();
+}
+
+function getToken(){
+  return localStorage.getItem("token");
+}
+
+function logout(){
+  localStorage.removeItem("token");
+  location.reload();
+}
+
+async function register(){
+  await fetch(API+"/auth/register",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:email.value,
+      password:password.value
+    })
+  });
+  alert("Registered. Now login.");
+}
+
+async function login(){
+  const res=await fetch(API+"/auth/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:email.value,
+      password:password.value
+    })
+  });
+
+  const data=await res.json();
+
+  if(!data.token){
+    alert("Login failed");
+    return;
+  }
+
+  saveToken(data.token);
+}
+
+async function shorten(){
+  const token=getToken();
+
+  if(!token){
+    alert("Login required");
+    return;
+  }
+
+  const res=await fetch(API+"/shorten",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+token
+    },
+    body:JSON.stringify({
+      url:longUrl.value
+    })
+  });
+
+  const data=await res.json();
+
+  const short=API+"/"+data.code;
+  result.innerText=short;
+  result.dataset.link=short;
+}
+
+function copy(){
+  if(!result.dataset.link) return;
+  navigator.clipboard.writeText(result.dataset.link);
+  alert("Copied!");
+}
+
+/* Auto-login if token exists */
+if(getToken()){
+  showDashboard();
+}
+</script>
+
+</body>
+</html>
