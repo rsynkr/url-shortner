@@ -18,10 +18,15 @@ const userSchema=new mongoose.Schema({
         required:true}
 })
 
-
+const urlSchema=new mongoose.Schema({
+    originalUrl:{type:String,required:true},
+    shortCode:{type:String,unique:true},
+    clicks:{type:Number,default:0},
+})
 
 
 
 
 export const User = mongoose.model("User", userSchema);
+export const Url = mongoose.model("Url", urlSchema);
 export default connectDB

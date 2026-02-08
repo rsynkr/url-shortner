@@ -5,8 +5,8 @@ POST http://localhost:5000/auth/register
 Content-Type: application/json
 
 {
-    "username":"" ,
-    "password": ""
+    "email":"jjkml",
+    "password": "TestPassword123"
 
 }
 
@@ -15,7 +15,17 @@ POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
-    "username": "testuser1",
+    "email": "jjkml",
     "password": "TestPassword123"
+
+}
+
+
+###
+POST http://localhost:5000/shorten
+Content-Type: application/json
+
+{
+    "url":"https://www.youtube.com/watch?v=mGrVmEex6_g"
 
 }
