@@ -11,8 +11,7 @@ router.post("/",async(req,res)=>{
             originalUrl:url,
             shortCode:code
         })
-        res.json({code})
-
+      
     }
         catch(err){
             console.log(err)
