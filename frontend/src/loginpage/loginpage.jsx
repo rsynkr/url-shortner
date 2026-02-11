@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-const LoginPage = () => {
+const loginpage = () => {
+  const [isLogin, setIsLogin] = useState(true);
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -8,6 +10,7 @@ const LoginPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     setForm({
@@ -19,6 +22,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     if (!form.email || !form.password) {
       setError("All fields required");
@@ -28,8 +32,11 @@ const LoginPage = () => {
     try {
       setLoading(true);
 
-      
-      const res = await fetch("http://localhost:5000/login", {
+      const url = isLogin
+        ? "http://localhost:5000/auth/login"
+        : "http://localhost:5000/auth/register";
+
+      const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,13 +47,16 @@ const LoginPage = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(data.message || "Something went wrong");
       }
 
-      console.log("Logged in:", data);
-
-      // Save token if using JWT
-      localStorage.setItem("token", data.token);
+      if (isLogin) {
+        localStorage.setItem("token", data.token);
+        setSuccess("Logged in successfully");
+      } else {
+        setSuccess("Registered successfully. You can login now.");
+        setIsLogin(true);
+      }
 
     } catch (err) {
       setError(err.message);
@@ -57,19 +67,20 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-xl shadow-md w-96"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">
-          Login
+          {isLogin ? "Login" : "Register"}
         </h2>
 
         {error && (
-          <p className="text-red-500 mb-4 text-sm">
-            {error}
-          </p>
+          <p className="text-red-500 mb-3 text-sm">{error}</p>
+        )}
+
+        {success && (
+          <p className="text-green-500 mb-3 text-sm">{success}</p>
         )}
 
         <input
@@ -78,7 +89,7 @@ const LoginPage = () => {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full mb-4 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full mb-4 p-3 border rounded-lg"
         />
 
         <input
@@ -87,19 +98,39 @@ const LoginPage = () => {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full mb-4 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full mb-4 p-3 border rounded-lg"
         />
 
         <button
           disabled={loading}
-          className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition"
+          className={`w-full text-white p-3 rounded-lg transition ${
+            isLogin
+              ? "bg-blue-500 hover:bg-blue-600"
+              : "bg-green-500 hover:bg-green-600"
+          }`}
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading
+            ? "Please wait..."
+            : isLogin
+            ? "Login"
+            : "Register"}
         </button>
 
+        <p
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setError("");
+            setSuccess("");
+          }}
+          className="text-blue-500 cursor-pointer mt-4 text-center text-sm"
+        >
+          {isLogin
+            ? "No account? Register"
+            : "Already have an account? Login"}
+        </p>
       </form>
     </div>
   );
 };
 
-export default LoginPage;
+export default loginpage;

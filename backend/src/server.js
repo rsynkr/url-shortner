@@ -5,6 +5,7 @@ import Authroutes from "./routes/Authroutes.js"
 import shortenroutes from "./routes/shortenroutes.js"
 import connectDB from "./db.js"
 import { Url } from "./db.js";
+import cors from"cors"
 const app=express()
 const PORT=process.env.PORT || 5000
 
@@ -13,6 +14,7 @@ const PORT=process.env.PORT || 5000
 
 
 connectDB()
+app.use(cors())
 app.use(express.json())
 app.use("/auth",Authroutes)
 app.use("/shorten",shortenroutes)
