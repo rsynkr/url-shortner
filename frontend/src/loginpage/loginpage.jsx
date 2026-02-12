@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const loginpage = () => {
+const LoginPage = () => {
+  const navigate = useNavigate();
+
   const [isLogin, setIsLogin] = useState(true);
 
   const [form, setForm] = useState({
@@ -52,7 +55,10 @@ const loginpage = () => {
 
       if (isLogin) {
         localStorage.setItem("token", data.token);
-        setSuccess("Logged in successfully");
+
+        // 🔥 REDIRECT HERE
+        navigate("/dashboard");
+
       } else {
         setSuccess("Registered successfully. You can login now.");
         setIsLogin(true);
@@ -133,4 +139,4 @@ const loginpage = () => {
   );
 };
 
-export default loginpage;
+export default LoginPage;
